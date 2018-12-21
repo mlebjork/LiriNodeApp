@@ -6,21 +6,18 @@ var Spotify = require ("node-spotify-api");
 var spotify = new Spotify(keys.spotify);
 var fs =require ("fs");
 var command = process.argv[2]
-var searchTerm =process.argv[3]
+var searchTerm = process.argv.slice(3, process.argv.length).join(" ");
 
-function action(command, searchTerm) {
-        switch (process.argv[2]) {
+function action(desiredAction,term) {
+        switch (desiredAction) {
             case 'spotify-this-song':
-                var resultFormatted = process.argv.slice(3, process.argv.length).join(" ");
-                spotifyThis(resultFormatted);
+                spotifyThis(term);
                 break;
             case 'concert-this':
-                var artistFormatted = process.argv.slice(3, process.argv.length).join(" ");
-                bandsInTown(artistFormatted);
+                bandsInTown(term);
                 break;
             case 'movie-this':
-                var movieFormatted = process.argv.slice(3, process.argv.length).join("+");
-                movieSearch(movieFormatted);
+                movieSearch(term);
                 break;
             case 'do-what-it-says':
                 random();
@@ -52,88 +49,60 @@ function movieSearch(searchQuery){
     axios.get("http://www.omdbapi.com/?t="+searchQuery+"&y=&plot=short&apikey=trilogy")
     .then(
         function(response) {
-            console.log(response.data);
             //   * Title of the movie.
-//        * Year the movie came out.
-//        * IMDB Rating of the movie.
-//        * Rotten Tomatoes Rating of the movie.
-//        * Country where the movie was produced.
-//        * Language of the movie.
-//        * Plot of the movie.
-//        * Actors in the movie.    ```
+            console.log("Title: ", response.data.Title);
             
-            // console.log("The movie's rating is: " + response.data.imdbRating);
+//        * Year the movie came out.
+            console.log("Year: ", response.data.Year);
+            
+//        * IMDB Rating of the movie.
+            console.log("imdb Rating: ", response.data.imdbRating);
+            console.log("Rotten Tomatoes Rating: ", response.data.Ratings[1].Value);
+    //   * Country where the movie was produced.
+            console.log("Country: ", response.data.Country);
+      // * Language of the movie.
+            console.log("Language: ", response.data.Language);
+//        * Plot of the movie.
+            console.log("Plot: ", response.data.Plot);          
+//        * Actors in the movie.  
+            console.log("Actors: ", response.data.Actors);  
+            
+         
         })
 };
-function bandsInTown(searchQuery){};
-function random(){};
+function bandsInTown(searchQuery){
+    if (searchQuery.length === 0){
+        searchQuery = "Greta Van Fleet" 
+    }
+    axios.get("https://rest.bandsintown.com/artists/" + searchQuery + "/events?app_id=codingbootcamp")
+    .then(function(response){
+        console.log("Artist is ", searchQuery);
+        
+        console.log("venue: ", response.data[0].venue.name);
+        console.log("City: ", response.data[0].venue.city);
+        console.log("Date: ", moment(response.data[0].datetime).format('MM/DD/YYYY'));
+         
+    })
+     };
+     
+function random(){
+    fs.readFile('random.txt', 'utf8', function(err, data) {
+       if (err) throw err;
+        var dataArray = data.split(',')
+        var dataCommand = dataArray [0];
+        var dataSearch = dataArray [1];
+        if (dataArray.length === 2){
+            action(dataCommand, dataSearch)
+        }
+        else if(dataArray.length ===1) {
+            action(dataCommand)
+        }
+      });
+      
+};
 
 action(command, searchTerm)
 
-    // (`"https://rest.bandsintown.com/artists/" + artist + "/events?app_id=bd8be5cc-2668-48c4-b2d3-1f0af40a1387"`)
-
-//   function(response) {
-//     console.log("The movie's rating is: " + response.data.imdbRating);
-//   }
-// );
-
-
-// ### What Each Command Should Do
-
-// 1. `node liri.js concert-this <artist/band name here>`
-
-//    * This will search the Bands in Town Artist Events API (`"https://rest.bandsintown.com/artists/" + artist + "/events?app_id=codingbootcamp"`) for an artist and render the following information about each event to the terminal:
-
-//      * Name of the venue
-
-//      * Venue location
-
-//      * Date of the Event (use moment to format this as "MM/DD/YYYY")
-
-// 2. `node liri.js spotify-this-song '<song name here>'`
-
-//    * This will show the following information about the song in your terminal/bash window
-
-//      * Artist(s)
-
-//      * The song's name
-
-//      * A preview link of the song from Spotify
-
-//      * The album that the song is from
-
-//    * If no song is provided then your program will default to "The Sign" by Ace of Base.
-
-// 3. `node liri.js movie-this '<movie name here>'`
-
-//    * This will output the following information to your terminal/bash window:
-
-//   * Title of the movie.
-//        * Year the movie came out.
-//        * IMDB Rating of the movie.
-//        * Rotten Tomatoes Rating of the movie.
-//        * Country where the movie was produced.
-//        * Language of the movie.
-//        * Plot of the movie.
-//        * Actors in the movie.    ```
-//       
-//      ```
-
-//    * If the user doesn't type a movie in, the program will output data for the movie 'Mr. Nobody.'
-
-//      * If you haven't watched "Mr. Nobody," then you should: <http://www.imdb.com/title/tt0485947/>
-
-//      * It's on Netflix!
-
-//    * You'll use the `axios` package to retrieve data from the OMDB API. Like all of the in-class activities, the OMDB API requires an API key. You may use `trilogy`.
-
-// 4. `node liri.js do-what-it-says`
-
-//    * Using the `fs` Node package, LIRI will take the text inside of random.txt and then use it to call one of LIRI's commands.
-
-//      * It should run `spotify-this-song` for "I Want it That Way," as follows the text in `random.txt`.
-
-//      * Edit the text in random.txt to test out the feature for movie-this and concert-this.
 
 // ### BONUS
 
