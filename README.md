@@ -1,4 +1,7 @@
 # LiriNodeApp
+
+[Watch the video here](https://drive.google.com/file/d/1Y6V5RPZ2LQXtDsZUOSxg2w1ULmnzALaS/view?usp=sharing)
+
 Liri is a node.js command line application that takes in parameters and gives back data. The user must enter 'node liri.js' into the command line followed by a command and then a search parameter.
 
 Possible commands are: 'concert-this', 'spotify-this-song', 'movie-this', or 'do-what-it-says'. The search parameter can be whatever the user is looking for. 
